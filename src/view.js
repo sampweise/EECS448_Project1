@@ -1,8 +1,10 @@
 const view = 
 {
+    body: document.querySelector("body"),
+
     locationString: ['A','B','C','D','E','F','G','H','I','J'],
 
-    clickedBoxes: [],
+    boxClicked: -1,
 
     placementCounter: 0,
 
@@ -13,6 +15,20 @@ const view =
     promptVar: 0,
 
     player: 0,
+
+    orientArr: ['N', 'E', 'S', 'W'],
+
+    //needs work
+    runGame: function()
+    {
+        let quit = 1
+        view.renderBoard()
+        if(quit == 0)
+        {
+            view.runGame()
+        }
+        
+    },
 
     renderBoard: function()
     {
@@ -29,8 +45,8 @@ const view =
             temp.setAttribute('data-id', i)
             temp2.setAttribute('src', 'images/blank2.png')
             temp2.setAttribute('data-id', 100+i)
-            temp.addEventListener('click', this.change)
-            temp2.addEventListener('click', this.change)
+            temp.addEventListener('click', view.boxClickEvent)
+            temp2.addEventListener('click', view.boxClickEvent)
             board[0].appendChild(temp)
             board[1].appendChild(temp2)
         }
@@ -54,21 +70,21 @@ const view =
             numContainer[0].appendChild(temp)
             numContainer[1].appendChild(temp2)
         }
-        
-        view.pieceSetting()
+        view.setupPhase()
     },
 
-    change: function()
+    boxClickEvent: function()
     {
         if(view.gameState == 1)
         {
             if(this.getAttribute('data-id') < 100)
             {
-                let orientationDisplay = document.createElement("h2")
+                if(view.boxClicked == -1)
+                {
+                    view.displayOrientation()
+                }
                 let temp = this.getAttribute('data-id')
-                console.log(view.clickedBoxes)
-                view.clickedBoxes.push(temp)
-                displayOrientation()
+                view.boxClicked = temp
             }
             else
             {
@@ -77,7 +93,8 @@ const view =
         }
     },
 
-    pieceSetting: function()
+    //finished
+    setupPhase: function()
     {
         let button = document.createElement("button")
         button.innerText = "Click here to start placing pieces"
@@ -87,14 +104,82 @@ const view =
             view.runPrompt()
             if(view.player == 0)
             {
-                console.log("Player 1 is placing pieces", view.player)
+                view.turnOne()
+            }
+        })
+        view.body.appendChild(button)
+            
+        
+    },
+
+    //Displays the orientation text and contains the click event for the orientation
+    displayOrientation: function()
+    {
+        if(view.placementCounter == 1) 
+        {
+            let temp = document.createElement("div")
+            let temp2 = document.createElement("h2")
+            temp.innerText = "There is no specific orientation, please click this prompt and hit submit"
+            temp2.innerText = "ORIENTATION"
+            temp.addEventListener('click', ()=>
+            {
+                view.orientSelected = 1
+                //add code that displays pieces and updates the array to store infromation based on the player
+            })
+            document.querySelector(".orientContainer").appendChild(temp)
+            view.body.appendChild(temp2)
+        }
+        else
+        {
+            for(let i=0 ; i<4; i++)
+            {
+                let temp = document.createElement("div")
+                temp.innerText = view.orientArr[i]
+                temp.setAttribute('data-id', i)
+                temp.addEventListener('click', ()=>
+                {
+                    view.orientSelected = 1
+                    //add code that displays pieces and updates the array to store information based on the player
+                })
+                document.querySelector(".orientContainer").appendChild(temp)
+            }
+        }
+    },
+
+    clearOrientation: function()
+    {
+        let temp = document.querySelector(".orientContainer")
+        temp = temp.querySelectorAll("div")
+        for(let i = 0; i<temp.length; i++)
+        {
+            temp[i].remove()
+        }
+    },
+
+    runPrompt: function()
+    {
+        //Creating the prompt that specifies the number of ships
+        let correct = 0
+        do 
+        {
+            view.promptVar = prompt("How many ships do you want to play with! (Minimum: 1, Maximum: 6")
+            if(view.promptVar >= 1 && view.promptVar <= 6)
+            {
+                correct = 1 
+            }
+        } while(correct == 0)
+    },
+
+    turnOne: function()
+    {
+        console.log("Player 1 is placing pieces", view.player)
 
                 //Setting the game state to the correct value
                 view.gameState = 1
 
                 //Removing the title and button
                 document.querySelector(".Title").remove()
-                button.remove()
+                view.body.querySelector("button").remove()
 
                 //Creating a h3 tag to display instructions for the piece placement event
                 let instruct = document.createElement("h3")
@@ -113,61 +198,68 @@ const view =
 
                 subButton.addEventListener('click', () => 
                 {
-                    if(promptVar > 1 && orientSelected == 1)
+                    if(view.promptVar > 1 && view.orientSelected == 1)
                     {
+                        view.orientSelected = 0
+                        view.boxClicked = -1
+                        view.clearOrientation()
                         document.querySelector("h4").remove()
-                        let shipNum = document.createElement("h4")
-                        shipNum.innerText = "Please place your 2 length ship"
+                        view.otherTurns(2)
                     }
                     else if(promptVar > 1)
                     {
-
+                        alert("Please select an orientation")
+                        view.turnOne()
                     }
                     else
                     {
                         //game phase
                     }
                 })
+                view.body.appendChild(instruct)
+                view.body.appendChild(subButton)
+                view.body.appendChild(shipNum)
+    },
 
-                
-                document.querySelector("body").appendChild(instruct)
-                document.querySelector("body").appendChild(subButton)
-                document.querySelector("body").appendChild(shipNum)
+    otherTurns: function (turn)
+    {
+        //Creating a h4 tag to display instructions for 1 length ship
+        let shipNum = document.createElement("h4")
+        shipNum.innerText = "Please place your " + turn + " length ship"
+
+        //Creating a button to indicate when the 1 length ship has been placed
+        let subButton = document.createElement("button")
+        subButton.innerText = "Submit"
+
+        //Showing what ship you are placing
+        view.placementCounter = turn
+
+        subButton.addEventListener('click', () => 
+        {
+            if(view.promptVar > turn && view.orientSelected == 1)
+            {
+                view.orientSelected = 0
+                view.boxClicked = -1
+                view.clearOrientation()
+                document.querySelector("h4").remove()
+                view.otherTurns(turn+1)
+            }
+            else if(view.promptVar > turn)
+            {
+                alert("Please select an orientation")
+                view.otherTurns(turn)
+            }
+            else
+            {
+                //game phase
             }
         })
-        document.querySelector("body").appendChild(button)
-            
-        
+        view.body.appendChild(subButton)
+        view.body.appendChild(shipNum)
     },
 
-    //Displays the orientation text and contains the click event for the orientation
-    displayOrientation: function()
+    gamePhase: function()
     {
-        if(view.placementCounter == 1) 
-        {
-            let temp = document.querySelector(".oreintContainer")
-            temp.innerText = "There is no specific orientation, please click this prompt and hit submit"
-            temp.addEventListener('click', ()=>
-            {
-                view.orientSelected = 1
-            })
-            document.querySelector("body").appendChild(temp)
-        }
-    },
-
-    runPrompt: function()
-    {
-        //Creating the prompt that specifies the number of ships
-        let correct = 0
-        do 
-        {
-            view.promptVar = prompt("How many ships do you want to play with! (Minimum: 1, Maximum: 6")
-            if(view.promptVar >= 1 && view.promptVar <= 6)
-            {
-                correct = 1 
-            }
-        } while(correct == 0)
+        //game phase code
     }
-
-
 }
