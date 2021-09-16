@@ -12,9 +12,15 @@ const view =
 
     gameState: 0,
 
+    ships: [],
+
     orientSelected: 0,
 
+    userOrientSelected: -1,
+
     promptVar: 0,
+
+    pushedItems: 0,
 
     player: 0,
 
@@ -85,9 +91,10 @@ const view =
                     view.displayOrientation()
                 }
                 let temp = this.getAttribute('data-id')
-                view.boxClicked = temp
+                view.boxClicked = parseInt(temp)
                 view.clearLeftBoard()
-                view.boards[0].querySelector('[data-id] = ${view.boxClicked}').setAttribute('src', 'images/boat.png')
+                view.displayShips()
+                view.boards[0].querySelector(`[data-id = "${view.boxClicked}"]`).setAttribute('src', 'images/boat.png')
             }
             else
             {
@@ -147,32 +154,35 @@ const view =
             {
                 let temp = document.createElement("div")
                 temp.innerText = view.orientArr[i]
-                temp.setAttribute('data-id', i)
+                temp.setAttribute('data-orientation', i)
                 temp.setAttribute('class', view.orientArr[i])
-                temp.addEventListener('click', ()=>
-                {
-                    view.orientSelected = 1
-                    if(this.getAttribute("data-id") == 0)
-                    {
-                        //Code for north placement
-                    }
-                    else if(this.getAttribute("data-id") == 1)
-                    {
-                        //Code for east placement
-                    }
-                    else if(this.getAttribute("data-id") == 2)
-                    {   
-                        //Code for south placement
-                    }
-                    else(this.getAttribute("data-id") == 3)
-                    {
-                        //Code for west placement
-                    }
-                    //add code that displays pieces and updates the array to store information based on the player
-                })
+                temp.addEventListener('click', view.userOrientation)
                 document.querySelector(".orientContainer").appendChild(temp)
             }
         }
+    },
+
+    userOrientation: function()
+    {
+        view.orientSelected = 1
+        if(this.getAttribute('data-orientation') == "0")
+        {
+            //Code for north placement
+            view.userOrientSelected = 0
+        }
+        else if(this.getAttribute('data-orientation') == "1")
+        {
+            view.userOrientSelected = 1
+        }
+        else if(this.getAttribute('data-orientation') == "2")
+        {   
+            view.userOrientSelected = 2
+        }
+        else if(this.getAttribute('data-orientation') == "3")
+        {
+            view.userOrientSelected = 3
+        }
+        //add code that displays pieces and updates the array to store information based on the player
     },
 
     clearOrientation: function()
@@ -195,6 +205,10 @@ const view =
             if(view.promptVar >= 1 && view.promptVar <= 6)
             {
                 correct = 1 
+                for(let i=0; i<view.promptVar; i++)
+                {   
+                    view.ships.push({location: [], hits: []})
+                }
             }
         } while(correct == 0)
     },
@@ -230,10 +244,19 @@ const view =
                     if(view.promptVar > 1 && view.orientSelected == 1)
                     {
                         view.orientSelected = 0
-                        view.boxClicked = -1
                         view.clearOrientation()
                         document.querySelector("h4").remove()
-                        view.otherTurns(2)
+                        if(view.updateLocation())
+                        {
+                            view.boxClicked = -1
+                            view.displayShips()
+                            view.otherTurns(2)
+                        }
+                        else
+                        {
+                            view.boxClicked = -1
+                            view.turnOne
+                        }
                     }
                     else if(promptVar > 1)
                     {
@@ -268,10 +291,19 @@ const view =
             if(view.promptVar > turn && view.orientSelected == 1)
             {
                 view.orientSelected = 0
-                view.boxClicked = -1
                 view.clearOrientation()
                 document.querySelector("h4").remove()
-                view.otherTurns(turn+1)
+                if(view.updateLocation())
+                {
+                    view.boxClicked = -1
+                    view.displayShips()
+                    view.otherTurns(turn+1)
+                }
+                else
+                {
+                    view.boxClicked = -1
+                    view.otherTurns(turn)
+                }
             }
             else if(view.promptVar > turn)
             {
@@ -280,11 +312,251 @@ const view =
             }
             else
             {
+                view.orientSelected = 0
+                view.clearOrientation()
+                document.querySelector("h4").remove()
+                if(view.updateLocation())
+                {
+                    view.boxClicked = -1
+                    view.displayShips()
+                }
+                else
+                {
+                    view.boxClicked = -1
+                }
+                view.gameState = 2 
                 //game phase
             }
         })
         view.body.appendChild(subButton)
         view.body.appendChild(shipNum)
+    },
+
+    updateLocation: function()
+    {
+        if(view.placementCounter == 1)
+        {
+            view.ships[view.placementCounter-1].location.push(view.boxClicked)
+            console.log(view.ships)
+            return true
+        }
+        else
+        {     
+            if(view.checkOverlap())
+            {
+                view.ships[view.placementCounter-1].location.push(view.boxClicked)
+            }
+            else
+            {
+                alert("The ship you just tried to place is out of bounds or overlapping with and existing ship, please try again")
+                return false
+            }
+            view.pushedItems +=1
+            if(view.userOrientSelected == 0)
+            {
+                for(let i=0; i<view.placementCounter-1; i++)
+                {
+                    view.boxClicked = view.boxClicked-10
+                    if(view.checkBounds() && view.checkOverlap())
+                    {
+                        view.ships[view.placementCounter-1].location.push(view.boxClicked)
+                        console.log(view.ships)
+                        view.pushedItems += 1
+                    }
+                    else
+                    {
+                        alert("The ship you just tried to place is out of bounds or overlapping with and existing ship, please try again")
+                        view.ships[view.placementCounter-1].location = []
+                        view.pushedItems = 0
+                        return false
+                    }  
+                }
+                view.pushedItems = 0
+                return true
+            }
+            else if(view.userOrientSelected == 1)
+            {
+                for(let i=0; i<view.placementCounter-1; i++)
+                {
+                    view.boxClicked = view.boxClicked+1
+                    if(view.checkBounds() && view.checkOverlap())
+                    {
+                        //if(ships overlap) give an error
+                        view.ships[view.placementCounter-1].location.push(view.boxClicked)
+                        console.log(view.ships)
+                        view.pushedItems += 1
+                    }
+                    else
+                    {
+                        alert("The ship you just tried to place is out of bounds or overlapping with and existing ship, please try again")
+                        view.ships[view.placementCounter-1].location = []
+                        view.pushedItems = 0
+                        return false
+                    }  
+                }
+                view.pushedItems = 0
+                return true
+            }
+            else if(view.userOrientSelected == 2)
+            {
+                for(let i=0; i<view.placementCounter-1; i++)
+                {
+                    view.boxClicked = view.boxClicked+10
+                    if(view.checkBounds() && view.checkOverlap())
+                    {
+                        view.ships[view.placementCounter-1].location.push(view.boxClicked)
+                        view.pushedItems += 1
+                        console.log(view.ships)
+                    }
+                    else
+                    {
+                        alert("The ship you just tried to place is out of bounds or overlapping with and existing ship, please try again")
+                        view.ships[view.placementCounter-1].location = []
+                        view.pushedItems = 0
+                        return false
+                    }  
+                view.pushedItems = 0
+                }
+                return true
+            }
+            else if(view.userOrientSelected == 3)
+            {
+                for(let i=0; i<view.placementCounter-1; i++)
+                {
+                    view.boxClicked = view.boxClicked-1
+                    if(view.checkBounds() && view.checkOverlap())
+                    {
+                        view.ships[view.placementCounter-1].location.push(view.boxClicked)
+                        view.pushedItems += 1
+                        console.log(view.ships)
+                    }
+                    else
+                    {
+                        alert("The ship you just tried to place is out of bounds or overlapping with and existing ship, please try again")
+                        view.ships[view.placementCounter-1].location = []
+                        view.pushedItems = 0
+                        return false
+                    }  
+                }
+                view.pushedItems = 0
+                return true
+            }
+
+        }
+    },
+
+    checkBounds: function()
+    {
+        if(view.boxClicked < 0 || view.boxClicked > 89)
+        {
+            return false
+        }
+        else
+        {   
+            if(view.userOrientSelected == 0)
+            {
+                if(view.boxClicked < 10)
+                {   
+                    if(view.pushedItems == view.placementCounter-1)
+                    {
+                        return true
+                    }
+                    else
+                    {
+                        return false
+                    }
+                }
+                else
+                {
+                    return true
+                }
+            }
+            else if(view.userOrientSelected == 1)
+            {
+                if(view.boxClicked % 10 == 9)
+                {
+                    if(view.pushedItems == view.placementCounter-1)
+                    {
+                        return true
+                    }
+                    else
+                    {
+                        return false
+                    }
+                }
+                else
+                {
+                    return true
+                }
+            }
+            else if(view.userOrientSelected == 2)
+            {
+                if(view.boxClicked > 80)
+                {
+                    if(view.pushedItems == view.placementCounter-1)
+                    {
+                        return true
+                    }
+                    else
+                    {
+                        return false
+                    }
+                }
+                else
+                {
+                    return true
+                }
+            }
+            else if(view.userOrientSelected == 3)
+            {
+                if(view.boxClicked % 10 == 0)
+                {
+                    if(view.pushedItems == view.placementCounter-1)
+                    {
+                        return true
+                    }
+                    else
+                    {
+                        return false
+                    }
+                }
+                else
+                {
+                    return true
+                }
+            }
+        }
+        
+    },
+
+    checkOverlap: function ()
+    {
+        for(let i=0; i<4; i++)
+        {
+            for(let j =0; j<4; j++)
+            {
+                if(view.ships[j].location[i] == view.boxClicked)
+                {
+                    return false
+                }
+            }
+        }
+        return true
+    },
+
+    displayShips: function ()
+    {
+        for(let i=0; i<4; i++)
+        {
+            for(let j =0; j<4; j++)
+            {
+                let temp = view.ships[j].location[i]
+                if(temp != null)
+                {
+                    view.boards[0].querySelector(`[data-id = "${temp}"]`).setAttribute('src', 'images/boat.png')
+                }
+            }
+        }
     },
 
     gamePhase: function()
