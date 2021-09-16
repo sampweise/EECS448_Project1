@@ -9,9 +9,54 @@ button {
     flex-wrap: wrap;
     position: absolute;
     top: 200px;
-    left: 1200px;
+    left: 1225px;
 }
 
+.orientContainer > .N {
+    text-align: center;
+    width:25px;
+    height: 20px;
+    border: solid;
+    display:wrap;
+    flex-wrap:wrap;
+    position: absolute;
+    left: 50px;
+}
+
+.orientContainer > .E {
+    text-align: center;
+    width:25px;
+    height: 20px;
+    border: solid;
+    display:wrap;
+    flex-wrap:wrap;
+    position: absolute;
+    top:50px;
+    left: 100px;
+}
+
+.orientContainer > .S {
+    text-align: center;
+    width:25px;
+    height: 20px;
+    border: solid;
+    display:wrap;
+    flex-wrap:wrap;
+    position: absolute;
+    top: 100px;
+    left: 50px;
+}
+
+.orientContainer > .W {
+    text-align: center;
+    width:25px;
+    height: 20px;
+    border: solid;
+    display:wrap;
+    flex-wrap:wrap;
+    position: absolute;
+    top: 50px;
+}
 
 h2 {
     position: absolute;

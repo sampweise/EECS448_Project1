@@ -2,6 +2,8 @@ const view =
 {
     body: document.querySelector("body"),
 
+    boards: document.querySelectorAll(".board"),
+
     locationString: ['A','B','C','D','E','F','G','H','I','J'],
 
     boxClicked: -1,
@@ -32,7 +34,6 @@ const view =
 
     renderBoard: function()
     {
-        let board = document.querySelectorAll(".board")
         let container = document.querySelectorAll(".letterContainer")
         let numContainer = document.querySelectorAll(".numberContainer")
 
@@ -47,8 +48,8 @@ const view =
             temp2.setAttribute('data-id', 100+i)
             temp.addEventListener('click', view.boxClickEvent)
             temp2.addEventListener('click', view.boxClickEvent)
-            board[0].appendChild(temp)
-            board[1].appendChild(temp2)
+            view.boards[0].appendChild(temp)
+            view.boards[1].appendChild(temp2)
         }
         //displays the letter on the top of the board
         for (let i=0; i<10; i++)
@@ -85,6 +86,8 @@ const view =
                 }
                 let temp = this.getAttribute('data-id')
                 view.boxClicked = temp
+                view.clearLeftBoard()
+                view.boards[0].querySelector('[data-id] = ${view.boxClicked}').setAttribute('src', 'images/boat.png')
             }
             else
             {
@@ -92,6 +95,15 @@ const view =
             }
         }
     },
+
+    clearLeftBoard: function()
+    {
+        let temp = view.boards[0].querySelectorAll("img")
+        for (let i = 0; i<temp.length; i++)
+        {
+            temp[i].setAttribute('src','images/blank2.png')
+        }
+    },   
 
     //finished
     setupPhase: function()
@@ -136,9 +148,26 @@ const view =
                 let temp = document.createElement("div")
                 temp.innerText = view.orientArr[i]
                 temp.setAttribute('data-id', i)
+                temp.setAttribute('class', view.orientArr[i])
                 temp.addEventListener('click', ()=>
                 {
                     view.orientSelected = 1
+                    if(this.getAttribute("data-id") == 0)
+                    {
+                        //Code for north placement
+                    }
+                    else if(this.getAttribute("data-id") == 1)
+                    {
+                        //Code for east placement
+                    }
+                    else if(this.getAttribute("data-id") == 2)
+                    {   
+                        //Code for south placement
+                    }
+                    else(this.getAttribute("data-id") == 3)
+                    {
+                        //Code for west placement
+                    }
                     //add code that displays pieces and updates the array to store information based on the player
                 })
                 document.querySelector(".orientContainer").appendChild(temp)
