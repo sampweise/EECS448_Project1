@@ -12,7 +12,9 @@ const view =
 
     gameState: 0,
 
-    ships: [],
+    shipsP1: [],
+
+    shipsP2: [],
 
     orientSelected: 0,
 
@@ -24,6 +26,8 @@ const view =
 
     player: 0,
 
+    playerShips: null,
+
     orientArr: ['N', 'E', 'S', 'W'],
 
     //needs work
@@ -33,6 +37,7 @@ const view =
         view.renderBoard()
         if(quit == 0)
         {
+            quit = 1
             view.runGame()
         }
         
@@ -207,70 +212,107 @@ const view =
                 correct = 1 
                 for(let i=0; i<view.promptVar; i++)
                 {   
-                    view.ships.push({location: [], hits: []})
+                    view.shipsP1.push({location: [], hits: []})
+                    view.shipsP2.push({location: [], hits: []})
                 }
+                view.playerShips = view.shipsP1
             }
         } while(correct == 0)
     },
 
     turnOne: function()
     {
-        console.log("Player 1 is placing pieces", view.player)
+        console.log("Player " + view.player + " is placing pieces", view.player)
 
-                //Setting the game state to the correct value
-                view.gameState = 1
+        let playerTag = document.createElement("h5")
+        playerTag.innerText = "Player " + (view.player+1) + "'s Turn"
+        playerTag.setAttribute('data-player', view.player)
 
-                //Removing the title and button
-                document.querySelector(".Title").remove()
-                view.body.querySelector("button").remove()
+        //Setting the game state to the correct value
+        view.gameState = 1
+        if(view.player == 0)
+        {
+            //Removing the title and button
+            document.querySelector(".Title").remove()
+            view.body.querySelector("button").remove()
+            
+        }
+        else
+        {
+            view.body.querySelector(`[data-player = "${0}"]`).remove()
+            view.body.querySelector(`[data-button = "${1}"]`).remove()
+        }
+        //Creating a h3 tag to display instructions for the piece placement event
+        let instruct = document.createElement("h3")
+        instruct.innerText = "Turn away form your opponent, then place pieces by clicking on the spot you want the ship to start in. After that the orientation will be displayed, then click on the orientation you would prefer, and then hit the submit button"
+        
+        //Creating a h4 tag to display instructions for 1 length ship
+        let shipNum = document.createElement("h4")
+        shipNum.innerText = "Please place your 1 length ship"
 
-                //Creating a h3 tag to display instructions for the piece placement event
-                let instruct = document.createElement("h3")
-                instruct.innerText = "Turn away form your opponent, then place pieces by clicking on the spot you want the ship to start in. After that the orientation will be displayed, then click on the orientation you would prefer, and then hit the submit button"
-                
-                //Creating a h4 tag to display instructions for 1 length ship
-                let shipNum = document.createElement("h4")
-                shipNum.innerText = "Please place your 1 length ship"
+        //Creating a button to indicate when the 1 length ship has been placed
+        let subButton = document.createElement("button")
+        subButton.innerText = "Submit"
 
-                //Creating a button to indicate when the 1 length ship has been placed
-                let subButton = document.createElement("button")
-                subButton.innerText = "Submit"
+        let turnButton = document.createElement("button")
+        turnButton.innerText = "Press here for next turn"
+        turnButton.setAttribute('data-button', 1)
 
-                //Showing what ship you are placing
-                view.placementCounter = 1
+        //Showing what ship you are placing
+        view.placementCounter = 1
 
-                subButton.addEventListener('click', () => 
+        subButton.addEventListener('click', () => 
+        {
+            if(view.promptVar > 1 && view.orientSelected == 1)
+            {
+                view.orientSelected = 0
+                view.clearOrientation()
+                document.querySelector("h4").remove()
+                view.checkTurn()
+                if(view.updateLocation())
                 {
-                    if(view.promptVar > 1 && view.orientSelected == 1)
+                    view.boxClicked = -1
+                    view.displayShips()
+                    view.otherTurns(2)
+                }
+                else
+                {
+                    view.boxClicked = -1
+                    view.turnOne
+                }
+            }
+            else if(view.promptVar > 1)
+            {
+                alert("Please select an orientation")
+                view.turnOne()
+            }
+            else
+            {
+                if(view.player == 0)
+                {
+                    turnButton.addEventListener('click', () =>
                     {
-                        view.orientSelected = 0
-                        view.clearOrientation()
-                        document.querySelector("h4").remove()
-                        if(view.updateLocation())
-                        {
-                            view.boxClicked = -1
-                            view.displayShips()
-                            view.otherTurns(2)
-                        }
-                        else
-                        {
-                            view.boxClicked = -1
-                            view.turnOne
-                        }
-                    }
-                    else if(promptVar > 1)
-                    {
-                        alert("Please select an orientation")
+                        view.updateLocation()
+                        view.player = 1
+                        view.clearLeftBoard()
+                        view.checkTurn()
                         view.turnOne()
-                    }
-                    else
-                    {
-                        //game phase
-                    }
-                })
-                view.body.appendChild(instruct)
-                view.body.appendChild(subButton)
-                view.body.appendChild(shipNum)
+                    })
+                    view.body.appendChild(turnButton)
+                }
+                else
+                {
+                    view.updateLocation()
+                    view.gameState = 2 
+                    //game phase
+                    view.gamePhase()
+                }   
+            }
+        })
+        view.body.appendChild(instruct)
+        view.body.appendChild(subButton)
+        view.body.appendChild(shipNum)
+        view.body.appendChild(playerTag)
     },
 
     otherTurns: function (turn)
@@ -286,6 +328,10 @@ const view =
         //Showing what ship you are placing
         view.placementCounter = turn
 
+        let turnButton = document.createElement("button")
+        turnButton.innerText = "Press here to place player 2 ships"
+        turnButton.setAttribute('data-button', 1)
+
         subButton.addEventListener('click', () => 
         {
             if(view.promptVar > turn && view.orientSelected == 1)
@@ -293,6 +339,7 @@ const view =
                 view.orientSelected = 0
                 view.clearOrientation()
                 document.querySelector("h4").remove()
+                view.checkTurn()
                 if(view.updateLocation())
                 {
                     view.boxClicked = -1
@@ -323,9 +370,25 @@ const view =
                 else
                 {
                     view.boxClicked = -1
+                    view.otherTurns(turn)
                 }
-                view.gameState = 2 
-                //game phase
+                if(view.player == 0)
+                {
+                    turnButton.addEventListener('click', () =>
+                    {
+                        view.player = 1
+                        view.clearLeftBoard()
+                        view.checkTurn()
+                        view.turnOne()
+                    })
+                    view.body.appendChild(turnButton)
+                }
+                else
+                {
+                    view.gameState = 2 
+                    //game phase
+                    view.gamePhase()
+                }   
             }
         })
         view.body.appendChild(subButton)
@@ -336,15 +399,17 @@ const view =
     {
         if(view.placementCounter == 1)
         {
-            view.ships[view.placementCounter-1].location.push(view.boxClicked)
-            console.log(view.ships)
+            view.playerShips[view.placementCounter-1].location.push(view.boxClicked)
+            view.playerShips[view.placementCounter-1].hits.push(-1)
+            console.log(view.playerShips)
             return true
         }
         else
         {     
             if(view.checkOverlap())
             {
-                view.ships[view.placementCounter-1].location.push(view.boxClicked)
+                view.playerShips[view.placementCounter-1].location.push(view.boxClicked)
+                view.playerShips[view.placementCounter-1].hits.push(-1)
             }
             else
             {
@@ -359,14 +424,16 @@ const view =
                     view.boxClicked = view.boxClicked-10
                     if(view.checkBounds() && view.checkOverlap())
                     {
-                        view.ships[view.placementCounter-1].location.push(view.boxClicked)
-                        console.log(view.ships)
+                        view.playerShips[view.placementCounter-1].location.push(view.boxClicked)
+                        view.playerShips[view.placementCounter-1].hits.push(-1)
+                        console.log(view.playerShips)
                         view.pushedItems += 1
                     }
                     else
                     {
                         alert("The ship you just tried to place is out of bounds or overlapping with and existing ship, please try again")
-                        view.ships[view.placementCounter-1].location = []
+                        view.playerShips[view.placementCounter-1].location = []
+                        view.playerShips[view.placementCounter-1].hits = []
                         view.pushedItems = 0
                         return false
                     }  
@@ -382,14 +449,16 @@ const view =
                     if(view.checkBounds() && view.checkOverlap())
                     {
                         //if(ships overlap) give an error
-                        view.ships[view.placementCounter-1].location.push(view.boxClicked)
-                        console.log(view.ships)
+                        view.playerShips[view.placementCounter-1].location.push(view.boxClicked)
+                        view.playerShips[view.placementCounter-1].hits.push(-1)
+                        console.log(view.playerShips)
                         view.pushedItems += 1
                     }
                     else
                     {
                         alert("The ship you just tried to place is out of bounds or overlapping with and existing ship, please try again")
-                        view.ships[view.placementCounter-1].location = []
+                        view.playerShips[view.placementCounter-1].location = []
+                        view.playerShips[view.placementCounter-1].hits = []
                         view.pushedItems = 0
                         return false
                     }  
@@ -404,14 +473,16 @@ const view =
                     view.boxClicked = view.boxClicked+10
                     if(view.checkBounds() && view.checkOverlap())
                     {
-                        view.ships[view.placementCounter-1].location.push(view.boxClicked)
+                        view.playerShips[view.placementCounter-1].location.push(view.boxClicked)
+                        view.playerShips[view.placementCounter-1].hits.push(-1)
                         view.pushedItems += 1
-                        console.log(view.ships)
+                        console.log(view.playerShips)
                     }
                     else
                     {
                         alert("The ship you just tried to place is out of bounds or overlapping with and existing ship, please try again")
-                        view.ships[view.placementCounter-1].location = []
+                        view.playerShips[view.placementCounter-1].location = []
+                        view.playerShips[view.placementCounter-1].hits = []
                         view.pushedItems = 0
                         return false
                     }  
@@ -426,14 +497,16 @@ const view =
                     view.boxClicked = view.boxClicked-1
                     if(view.checkBounds() && view.checkOverlap())
                     {
-                        view.ships[view.placementCounter-1].location.push(view.boxClicked)
+                        view.playerShips[view.placementCounter-1].location.push(view.boxClicked)
+                        view.playerShips[view.placementCounter-1].hits.push(-1)
                         view.pushedItems += 1
-                        console.log(view.ships)
+                        console.log(view.playerShips)
                     }
                     else
                     {
                         alert("The ship you just tried to place is out of bounds or overlapping with and existing ship, please try again")
-                        view.ships[view.placementCounter-1].location = []
+                        view.playerShips[view.placementCounter-1].location = []
+                        view.playerShips[view.placementCounter-1].hits = []
                         view.pushedItems = 0
                         return false
                     }  
@@ -535,7 +608,7 @@ const view =
         {
             for(let j =0; j<4; j++)
             {
-                if(view.ships[j].location[i] == view.boxClicked)
+                if(view.playerShips[i].location[j] == view.boxClicked)
                 {
                     return false
                 }
@@ -550,7 +623,7 @@ const view =
         {
             for(let j =0; j<4; j++)
             {
-                let temp = view.ships[j].location[i]
+                let temp = view.playerShips[j].location[i]
                 if(temp != null)
                 {
                     view.boards[0].querySelector(`[data-id = "${temp}"]`).setAttribute('src', 'images/boat.png')
@@ -559,8 +632,40 @@ const view =
         }
     },
 
+    checkTurn: function ()
+    {
+        if(view.player == 0)
+        {
+            view.playerShips = view.shipsP1
+        }
+        else
+        {
+            view.playerShips = view.shipsP2
+        }
+    },
+
     gamePhase: function()
     {
         //game phase code
+        view.displayGamePhase()
+        while(1)
+        {
+            if(view.winner())
+            {
+                break
+            }
+        }
+        
+    },
+
+    /*
+    displayGamePhase: function()
+    {
+        let gameButton = document.
+        view.clearLeftBoard()
+        view.body.querySelector("button").remove()
+        view.body.querySelector("h5").remove
+
     }
+    */
 }
