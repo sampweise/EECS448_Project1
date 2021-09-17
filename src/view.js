@@ -138,6 +138,7 @@ const view =
                     view.boards[1].querySelector(`[data-id = "${view.boxClickedRight}"]`).setAttribute('src', 'images/target.png')
                     view.changeTurn()
                     view.displayHits()
+                    view.displaySunk()
                     view.displayMisses()
                     view.changeTurn()
                 }
@@ -653,6 +654,7 @@ const view =
                 view.displayShips()
                 view.changeTurn()
                 view.displayHits()
+                view.displaySunk()
                 view.displayMisses()
                 view.changeTurn()
                 view.firstGamePhase = 1
@@ -667,6 +669,7 @@ const view =
                     view.extractShipType()
                     view.fire()
                     view.displayHits()
+                    view.displaySunk()
                     view.displayMisses()
                     view.gameState = 3
                     view.boxClickedRight = -1
@@ -769,7 +772,27 @@ const view =
 
     displaySunk: function ()
     {
-
+        for(let i=0; i<view.promptVar; i++)
+        {
+            for(let j =0; j<view.promptVar; j++)
+            {
+                let temp = view.playerShips[i].hits[j]
+                if(temp != null)
+                {
+                    view.sunkCount += 1
+                    view.sunkArr.push(temp)
+                    if(view.sunkCount == i+1)
+                    {
+                        for(let k = 0; k < view.sunkCount; k++)
+                        {
+                            view.boards[1].querySelector(`[data-id = "${view.sunkArr[k]}"]`).setAttribute('src', 'images/sunk.png')  
+                        }   
+                    }  
+                }
+            }
+            view.sunkCount = 0
+            view.sunkArr = []
+        }
     },
 
     displayMisses: function ()
