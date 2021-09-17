@@ -34,6 +34,20 @@ const view =
 
     shipType: 0,
 
+    sunkArr: [],
+
+    missesP1: [],
+
+    missesP2: [],
+
+    playerMisses: null,
+
+    sunkCount: 0,
+
+    missCount: 0,
+
+    gamePhasePlayerTag: document.createElement("h5"),
+
     orientArr: ['N', 'E', 'S', 'W'],
 
     //needs work
@@ -112,7 +126,7 @@ const view =
                 alert("Hey click on the correct board please")
             }
         }
-        else
+        else if(view.gameState == 2)
         {
             if(view.firstGamePhase != 0)
             {
@@ -121,8 +135,11 @@ const view =
                     let temp = this.getAttribute('data-id')
                     view.boxClickedRight = parseInt(temp)
                     view.clearRightBoard()
-                    //display hits
                     view.boards[1].querySelector(`[data-id = "${view.boxClickedRight}"]`).setAttribute('src', 'images/target.png')
+                    view.changeTurn()
+                    view.displayHits()
+                    view.displayMisses()
+                    view.changeTurn()
                 }
                 else
                 {
@@ -255,10 +272,11 @@ const view =
                 correct = 1 
                 for(let i=0; i<view.promptVar; i++)
                 {   
-                    view.shipsP1.push({location: [], hits: []})
-                    view.shipsP2.push({location: [], hits: []})
+                    view.shipsP1.push({location: [], hits: [], shipType: i+1})
+                    view.shipsP2.push({location: [], hits: [], shipType: i+1})
                 }
                 view.playerShips = view.shipsP1
+                view.playerMisses = view.missesP1
             }
         } while(correct == 0)
     },
@@ -272,7 +290,7 @@ const view =
 
         //Creating a h3 tag to display instructions for the piece placement event
         let instruct = document.createElement("h3")
-        instruct.innerText = "Turn away form your opponent, then place pieces by clicking on the spot you want the ship to start in. After that the orientation will be displayed, then click on the orientation you would prefer, and then hit the submit button"
+        instruct.innerText = "Turn away from your opponent, then place pieces by clicking on the spot you want the ship to start in. After that the orientation will be displayed, then click on the orientation you would prefer, and then hit the submit button"
 
         //Creating a h4 tag to display instructions for 1 length ship
         let shipNum = document.createElement("h4")
@@ -308,8 +326,7 @@ const view =
                 //Running the code to clear the orientation
                 view.clearOrientation()
 
-                //updating the array for the player for location and hits
-                view.checkTurn()
+                //checkTurn
 
                 //Checks if the spots where you are placing you ship works and returns true if so
                 if(view.updateLocation())
@@ -408,9 +425,8 @@ const view =
         //Adding event lister for the turn button
         turnButton.addEventListener('click', () =>
         {
-            view.player = 1
+            view.changeTurn()
             view.clearLeftBoard()
-            view.checkTurn()
             view.placementCounter = 0
             view.body.querySelector(`[data-button = "${1}"]`).remove()
             view.turnFunc()
@@ -458,7 +474,6 @@ const view =
         if(view.placementCounter == 1)
         {
             view.playerShips[view.placementCounter-1].location.push(view.boxClicked)
-            view.playerShips[view.placementCounter-1].hits.push(-1)
             console.log(view.playerShips)
             return true
         }
@@ -486,7 +501,6 @@ const view =
                 if(view.checkBounds() && view.checkOverlap())
                 {
                     view.playerShips[view.placementCounter-1].location.push(view.boxClicked)
-                    view.playerShips[view.placementCounter-1].hits.push(-1)
                     console.log(view.playerShips)
                     view.pushedItems += 1
                     view.boxClicked = view.boxClicked+tempVar
@@ -495,7 +509,6 @@ const view =
                 {
                     alert("The ship you just tried to place is out of bounds or overlapping with and existing ship, please try again")
                     view.playerShips[view.placementCounter-1].location = []
-                    view.playerShips[view.placementCounter-1].hits = []
                     view.pushedItems = 0
                     return false
                 }  
@@ -531,20 +544,20 @@ const view =
             }
 
             if(tempVar)
-                {   
-                    if(view.pushedItems == view.placementCounter-1)
-                    {
-                        return true
-                    }
-                    else
-                    {
-                        return false
-                    }
-                }
-                else
+            {   
+                if(view.pushedItems == view.placementCounter-1)
                 {
                     return true
                 }
+                else
+                {
+                    return false
+                }
+            }
+            else
+            {
+                return true
+            }
         }
         
     },
@@ -555,7 +568,7 @@ const view =
         {
             for(let j =0; j<view.promptVar; j++)
             {
-                if(view.playerShips[j].location[i] == view.boxClicked)
+                if(view.playerShips[i].location[j] == view.boxClicked)
                 {
                     return false
                 }
@@ -570,7 +583,7 @@ const view =
         {
             for(let j =0; j<view.promptVar; j++)
             {
-                let temp = view.playerShips[j].location[i]
+                let temp = view.playerShips[i].location[j]
                 if(temp != null)
                 {
                     view.boards[0].querySelector(`[data-id = "${temp}"]`).setAttribute('src', 'images/boat.png')
@@ -579,22 +592,29 @@ const view =
         }
     },
 
-    checkTurn: function ()
+    changeTurn: function ()
     {
-        if(view.player == 0)
+        if(view.player == 1)
         {
+            view.player = 0
+            view.shipsP2 = view.playerShips
             view.playerShips = view.shipsP1
+            view.missesP2 = view.playerMisses
+            view.playerMisses = view.missesP1
         }
         else
         {
+            view.player = 1
+            view.shipsP1 = view.playerShips
             view.playerShips = view.shipsP2
+            view.missesP1 = view.playerMisses
+            view.playerMisses = view.missesP2
         }
     },
 
     gamePhase: function()
     {
-        view.player = 0
-        view.checkTurn()
+        view.changeTurn()
         //game phase code
         view.displayGamePhase()
         /*
@@ -620,10 +640,21 @@ const view =
         nxtButton.innerText = "Next Turn"
         nxtButton.addEventListener('click', () =>
         {
+            view.gamePhasePlayerTag.innerText = "Player " + (view.player+1) + "'s turn"
             if(view.firstGamePhase == 0)
             {
+                view.gameState = 2
                 //displays the players board and have the player two board on the right
+                if(view.player != 0)
+                {
+                    view.body.querySelector("h5").remove()
+                }
+                view.body.appendChild(view.gamePhasePlayerTag)
                 view.displayShips()
+                view.changeTurn()
+                view.displayHits()
+                view.displayMisses()
+                view.changeTurn()
                 view.firstGamePhase = 1
             }
             else if(view.firstGamePhase == 1)
@@ -631,17 +662,19 @@ const view =
                 if(view.boxClickedRight != -1)
                 {
                     //displays whether there was a hit or miss after the player choose a spot to hit and check if a box has been clicked
-                    view.player = !view.player
-                    view.checkTurn()
-                    view.boxClickedRight = -1
+                    view.changeTurn()
                     view.firstGamePhase = 2
-                    console.log("HIT")
-                    //view.extractShipType()
-                    //view.fire()
+                    view.extractShipType()
+                    view.fire()
+                    view.displayHits()
+                    view.displayMisses()
+                    view.gameState = 3
+                    view.boxClickedRight = -1
                 }
                 else
                 {
                     alert("Please select a box to hit")
+                    view.gameState = 2
                     view.firstGamePhase = 1
                 }
             }
@@ -656,27 +689,32 @@ const view =
         view.body.appendChild(nxtButton)
     },
 
-        /*
+        
     fire: function ()
     {
-        if(view.checkHitAlready() && view.checkHit())
+        console.log(view.shipType)
+        if(view.shipType!=-1 && view.checkHitAlready())
         {
-            console.log(view.shipType)
             view.playerShips[view.shipType-1].hits.push(view.boxClickedRight)
             console.log(view.playerShips[view.shipType-1])
-            view.firstGamePhase += 1
+            view.firstGamePhase = 2
         }
-        else if(view.checkHit())
+        else if(view.shipType != -1)
         {
             alert("You have already hit this location")
-            view.firstGamePhase -= 1
+            view.firstGamePhase = 1
         }
         else
         {
             //miss
-            view.firstGamePhase += 1
+            view.playerMisses.push(view.boxClickedRight)
+            console.log(view.playerMisses)
+            view.missCount +=1
+            view.firstGamePhase = 2
         }
+        view.shipType = -1
     },
+
 
     checkHitAlready: function ()
     {
@@ -693,35 +731,54 @@ const view =
         return true
     },
 
-    checkHit: function ()
-    {
-        for(let i = 0; i<view.promptVar; i++)
-        {
-            for(let j = 0; j< view.promptVar; j++)
-            {
-                if(view.playerShips[i].locations[j] == view.boxClickedRight)
-                {
-                    return true
-                }
-            }
-        }
-        return false
-    },
-
     extractShipType: function ()
     {
         for(let i = 0; i<view.promptVar; i++)
         {
             for(let j = 0; j< view.promptVar; j++)
             {
-                if(view.playerShips[i].location[j] == view.boxClickedRight)
+                console.log(view.boxClickedRight)
+                if(view.playerShips[i].location[j]+100 == view.boxClickedRight)
                 {
-                    view.shipType = view.playerShips[i].location.length
+                    view.shipType =  i+1
+                    return
+                }
+                else
+                {
+                    console.log("here")
+                    view.shipType = -1
                 }
             }
         }
     },
-    */
+
+    displayHits: function ()
+    {
+        for(let i=0; i<view.promptVar; i++)
+        {
+            for(let j =0; j<view.promptVar; j++)
+            {
+                let temp = view.playerShips[i].hits[j]
+                if(temp != null)
+                {
+                    view.boards[1].querySelector(`[data-id = "${temp}"]`).setAttribute('src', 'images/hit.png')  
+                }
+            }
+        }
+    },
+
+    displaySunk: function ()
+    {
+
+    },
+
+    displayMisses: function ()
+    {
+        for(i=0; i<view.playerMisses.length; i++)
+        {
+            view.boards[1].querySelector(`[data-id = "${view.playerMisses[i]}"]`).setAttribute('src', 'images/waves.png')
+        }
+    },
 
     removeGamePhaseText: function ()
     {
@@ -743,7 +800,6 @@ const view =
         view.body.querySelector("h2").remove()
         //view.body.querySelector(`[data-button = "${2}"]`).remove()
         view.body.appendChild(gameButton)
-        console.log("here")
     
     }
 }
