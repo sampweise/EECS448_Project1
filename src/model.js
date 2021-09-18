@@ -32,7 +32,11 @@ const model =
 
     missCount: 0,
 
+    winnerCount: 0,
+
     error: 0,
+
+    winner: 0,
 
     setupPhase: function()
     {
@@ -316,5 +320,63 @@ const model =
             }
         }
     },
+
+    checkWinner: function()
+    {
+        for(let i=0; i<model.promptVar; i++)
+        {
+            for(let j =0; j<model.promptVar; j++)
+            {
+                let temp = model.playerShips[i].hits[j]
+                if(temp != null)
+                {
+                    view.sunkCount += 1
+                    view.sunkArr.push(temp)
+                    if(view.sunkCount == i+1)
+                    {
+                        model.winnerCount += 1
+                    }  
+                }
+            }
+            view.sunkCount = 0
+            view.sunkArr = []
+        }
+        model.changeTurn()
+        if(model.winnerCount == model.promptVar)
+        {
+            model.winner = model.player
+            return true
+        }
+        model.winnerCount = 0
+        for(let i=0; i<model.promptVar; i++)
+        {
+            for(let j =0; j<model.promptVar; j++)
+            {
+                let temp = model.playerShips[i].hits[j]
+                if(temp != null)
+                {
+                    view.sunkCount += 1
+                    view.sunkArr.push(temp)
+                    if(view.sunkCount == i+1)
+                    {
+                        if(view.sunkCount == i+1)
+                        {
+                            model.winnerCount += 1
+                        }  
+                    }  
+                }
+            }
+            view.sunkCount = 0
+            view.sunkArr = []
+        }
+        model.changeTurn()
+        if(model.winnerCount == model.promptVar)
+        {
+            model.winner = model.player
+            return true
+        }
+        model.winnerCount = 0
+        return false
+    }
 
 }

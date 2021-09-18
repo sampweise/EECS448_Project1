@@ -448,6 +448,12 @@ const view =
                     view.displayHits()
                     view.displaySunk()
                     view.displayMisses()
+                    if(model.checkWinner())
+                    {
+                        console.log("Player " + (model.player+1) + "'s the Winner!!")
+                        view.removeGamePhaseText()
+                        view.displayWinner()
+                    }
                     model.boxClickedRight = -1
                 }
                 else
@@ -554,9 +560,33 @@ const view =
 
     removeGamePhaseText: function ()
     {
+        view.body.querySelector("h3").remove()
 
+        view.body.querySelector("button").remove()
+
+        view.body.querySelector("h5").remove()
     },
 
+    displayWinner: function ()
+    {
+        let title = document.createElement("h1")
+        title.innerText = "The Winner is Player " + (model.winner+1) 
+
+        let instruct = document.createElement("h4")
+        instruct.innerText = "If you want to restart the game please click on the button below"
+
+        let button = document.createElement("button")
+        button.innerText = "Restart"
+
+        button.addEventListener('click', () =>
+        {
+           location.reload(1)
+        })
+
+        view.body.appendChild(instruct)
+        view.body.appendChild(title)
+        view.body.appendChild(button)
+    },
 
     displayGamePhase: function()
     {
@@ -570,8 +600,7 @@ const view =
             view.body.querySelector(`[data-button = "${3}"]`).remove()
         })
         view.body.querySelector("h2").remove()
-        //view.body.querySelector(`[data-button = "${2}"]`).remove()
         view.body.appendChild(gameButton)
     
-    }
+    },
 }
