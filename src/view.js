@@ -98,17 +98,24 @@ const view =
         {
             if(model.firstGamePhase != 0)
             {
+                console.log("here")
                 if(this.getAttribute('data-id') > 99)
                 {
                     let temp = this.getAttribute('data-id')
                     model.boxClickedRight = parseInt(temp)
                     view.clearRightBoard()
                     view.boards[1].querySelector(`[data-id = "${model.boxClickedRight}"]`).setAttribute('src', 'images/target.png')
-                    model.changeTurn()
+                    if(model.error == 0)
+                    {
+                        model.changeTurn()
+                    }
                     view.displayHits()
                     view.displaySunk()
                     view.displayMisses()
-                    model.changeTurn()
+                    if(model.error == 0)
+                    {
+                        model.changeTurn()
+                    }
                 }
                 else
                 {
@@ -409,12 +416,14 @@ const view =
             if(model.firstGamePhase == 0)
             {
                 model.gameState = 2
+
                 //displays the players board and have the player two board on the right
                 if(model.player != 0)
                 {
                     view.body.querySelector("h5").remove()
                 }
                 view.body.appendChild(view.gamePhasePlayerTag)
+                
                 view.displayShips()
                 model.changeTurn()
                 view.displayHits()
@@ -428,14 +437,17 @@ const view =
                 if(model.boxClickedRight != -1)
                 {
                     //displays whether there was a hit or miss after the player choose a spot to hit and check if a box has been clicked
-                    model.changeTurn()
+                    if(model.error == 0)
+                    {
+                        model.changeTurn()
+                    }
                     model.firstGamePhase = 2
                     model.extractShipType()
+                    model.gameState = 3
                     model.fire()
                     view.displayHits()
                     view.displaySunk()
                     view.displayMisses()
-                    model.gameState = 3
                     model.boxClickedRight = -1
                 }
                 else
@@ -469,6 +481,19 @@ const view =
                 }
             }
         }
+        model.changeTurn()
+        for(let i=0; i<model.promptVar; i++)
+        {
+            for(let j =0; j<model.promptVar; j++)
+            {
+                let temp = model.playerShips[i].hits[j]
+                if(temp != null)
+                {
+                    view.boards[0].querySelector(`[data-id = "${temp-100}"]`).setAttribute('src', 'images/hit.png')  
+                }
+            }
+        }
+        model.changeTurn()
     },
 
     displaySunk: function ()
@@ -494,6 +519,29 @@ const view =
             view.sunkCount = 0
             view.sunkArr = []
         }
+        model.changeTurn()
+        for(let i=0; i<model.promptVar; i++)
+        {
+            for(let j =0; j<model.promptVar; j++)
+            {
+                let temp = model.playerShips[i].hits[j]
+                if(temp != null)
+                {
+                    view.sunkCount += 1
+                    view.sunkArr.push(temp)
+                    if(view.sunkCount == i+1)
+                    {
+                        for(let k = 0; k < view.sunkCount; k++)
+                        {
+                            view.boards[0].querySelector(`[data-id = "${view.sunkArr[k]-100}"]`).setAttribute('src', 'images/sunk.png')  
+                        }   
+                    }  
+                }
+            }
+            view.sunkCount = 0
+            view.sunkArr = []
+        }
+        model.changeTurn()
     },
 
     displayMisses: function ()

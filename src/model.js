@@ -32,6 +32,8 @@ const model =
 
     missCount: 0,
 
+    error: 0,
+
     setupPhase: function()
     {
         let button = document.createElement("button")
@@ -238,30 +240,33 @@ const model =
 
     fire: function ()
     {
-        console.log(model.shipType)
         if(model.shipType!=-1 && model.checkHitAlready())
         {
             model.playerShips[model.shipType-1].hits.push(model.boxClickedRight)
-            console.log(model.playerShips[model.shipType-1])
             model.firstGamePhase = 2
+            model.error = 0
         }
         else if(model.shipType != -1)
         {
             alert("You have already hit this location")
             model.firstGamePhase = 1
+            model.gameState = 2
+            model.error = 1
         }
         else if(model.checkMissAlready())
         {
             //miss
             model.playerMisses.push(model.boxClickedRight)
-            console.log(model.playerMisses)
             model.missCount +=1
             model.firstGamePhase = 2
+            model.error = 0
         }
         else
         {
             alert("You have already missed at this location")
             model.firstGamePhase = 1
+            model.gameState = 2
+            model.error = 1
         }
         model.shipType = -1
     },
@@ -299,7 +304,6 @@ const model =
         {
             for(let j = 0; j< model.promptVar; j++)
             {
-                console.log(model.boxClickedRight)
                 if(model.playerShips[i].location[j]+100 == model.boxClickedRight)
                 {
                     model.shipType =  i+1
@@ -307,7 +311,6 @@ const model =
                 }
                 else
                 {
-                    console.log("here")
                     model.shipType = -1
                 }
             }
