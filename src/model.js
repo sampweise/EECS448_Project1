@@ -1,4 +1,4 @@
-const model = 
+const model =
 {
     /**
      * variable in charge of the storing of the user input for the number of ships they want to play with
@@ -64,7 +64,7 @@ const model =
     shipsP2: [],
 
     /**
-     * Variable used to store the game state 
+     * Variable used to store the game state
      * @member gameState
      * @type {number}
      */
@@ -135,7 +135,7 @@ const model =
 
     /**
      * This function is a function in charge of setup
-     * 
+     *
      * @function setupPhase
      * @pre once the pages has been loaded
      * @post creates the button to start placing ships and then runs the prompt to see how many ships the user wants to play with
@@ -157,13 +157,13 @@ const model =
             }
         })
         view.body.appendChild(button)
-            
-        
+
+
     },
 
     /**
      * This functions is in charge of setup phase text function
-     * 
+     *
      * @function turnFunc
      * @see setupPhaseText
      * @pre none
@@ -175,12 +175,12 @@ const model =
         model.placementCounter += 1
         view.setupPhaseText()
 
-        
+
     },
 
     /**
      * This function runs the prompt to choose the amount of ships
-     * 
+     *
      * @function runPrompt
      * @pre the setup phase starts
      * @post prompts the user to chose a number between 1 and 6 for the amount of ships they want to place then store that in promptVar
@@ -188,14 +188,14 @@ const model =
     runPrompt: function()
     {
         let correct = 0
-        do 
+        do
         {
             model.promptVar = prompt("How many ships do you want to play with! (Minimum: 1, Maximum: 6")
             if(model.promptVar >= 1 && model.promptVar <= 6)
             {
-                correct = 1 
+                correct = 1
                 for(let i=0; i<model.promptVar; i++)
-                {   
+                {
                     model.shipsP1.push({location: [], hits: [], shipType: i+1})
                     model.shipsP2.push({location: [], hits: [], shipType: i+1})
                 }
@@ -207,7 +207,7 @@ const model =
 
     /**
      * This function changes turns
-     * 
+     *
      * @function changeTurn
      * @pre none
      * @post changes the playerShips and playerMisses to the correct arrays based on what the player variable is
@@ -234,7 +234,7 @@ const model =
 
     /**
      * This function updates the locations of ships and returns a boolean
-     * 
+     *
      * @function updateLocation
      * @pre once a spot and orientation is selected and the user hits the submit button
      * @post updates the location of the ship based on the spot and orientation the user selects. Return true if the placement was allow and false if not
@@ -249,7 +249,7 @@ const model =
             return true
         }
         else
-        {     
+        {
             if(view.userOrientSelected == 0)
             {
                 var tempVar  = -10
@@ -275,6 +275,10 @@ const model =
                     console.log(model.playerShips)
                     model.pushedItems += 1
                     model.boxClicked = model.boxClicked+tempVar
+                    /*Implementation for adding sounds here?
+                    *
+                    *
+                    */
                 }
                 else
                 {
@@ -282,7 +286,7 @@ const model =
                     model.playerShips[model.placementCounter-1].location = []
                     model.pushedItems = 0
                     return false
-                }  
+                }
             }
             return true
 
@@ -291,7 +295,7 @@ const model =
 
     /**
      * This function returns a boolean if the ships orientation is okay
-     * 
+     *
      * @function checkBounds
      * @pre the update location function runs
      * @post checks if the ship is going to fit on the board based on what you click and the orientation you select. Returns true if the ship is in bounds and false if not
@@ -304,7 +308,7 @@ const model =
             return false
         }
         else
-        {   
+        {
             if(view.userOrientSelected == 0)
             {
                 var tempVar = model.boxClicked < 10
@@ -323,7 +327,7 @@ const model =
             }
 
             if(tempVar)
-            {   
+            {
                 if(model.pushedItems == model.placementCounter-1)
                 {
                     return true
@@ -338,12 +342,12 @@ const model =
                 return true
             }
         }
-        
+
     },
 
     /**
      * This function checks for overlaps
-     * 
+     *
      * @function checkOverlap
      * @pre the update location function runs
      * @post checks to make sure that the ship the user is placing doesn't overlap with the ships already placed. Returns false if it does overlap and returns true if not
@@ -366,7 +370,7 @@ const model =
 
     /**
      * This function uses other functions to change turns and display
-     * 
+     *
      * @function gamePhase
      * @see changeTurn
      * @see displayGamePhase
@@ -381,7 +385,7 @@ const model =
 
     /**
      * This function "fires" at the spot chosen and uses other functions to see if the place has already been hit
-     * 
+     *
      * @function fire
      * @see checkMissAlready
      * @see checkHitAlready
@@ -423,7 +427,6 @@ const model =
 
     /**
      * This function checks if the spot has already been hit
-     * 
      * @function checkHitAlready
      * @pre fire functions runs
      * @post checks if the spot the user chose has been hit already and if not it will return true and if it has it will return false
@@ -446,7 +449,7 @@ const model =
 
     /**
      * This function checks if the user has missed already
-     * 
+     *
      * @function checkMissAlready
      * @pre fire function runs
      * @post check to see if the user has missed already and if not the function will return true and if it has it will return false
@@ -466,7 +469,7 @@ const model =
 
     /**
      * This function checks if the ships overlap
-     * 
+     *
      * @function extractShipType
      * @pre the update location function runs
      * @post checks to make sure that the ship the user is placing doesn't overlap with the ships already placed
@@ -512,7 +515,7 @@ const model =
                     if(view.sunkCount == i+1)
                     {
                         model.winnerCount += 1
-                    }  
+                    }
                 }
             }
             view.sunkCount = 0
@@ -539,8 +542,8 @@ const model =
                         if(view.sunkCount == i+1)
                         {
                             model.winnerCount += 1
-                        }  
-                    }  
+                        }
+                    }
                 }
             }
             view.sunkCount = 0

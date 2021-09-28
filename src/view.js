@@ -1,22 +1,22 @@
-const view = 
+const view =
 {
     /**
      * Variable used to access the body of the html
-     * 
+     *
      * @member body
      */
     body: document.querySelector("body"),
 
     /**
      * Variables used to access the board element of the html
-     * 
+     *
      * @member boards
      */
     boards: document.querySelectorAll(".board"),
 
     /**
      * Array used for the Letters on the board
-     * 
+     *
      * @member locationString
      * @type {array}
      */
@@ -24,7 +24,7 @@ const view =
 
     /**
      * Variable used to detect that orient has been selected
-     * 
+     *
      * @member orientSelected
      * @type {number}
      */
@@ -32,7 +32,7 @@ const view =
 
     /**
      * Variable used to store the user orientation
-     * 
+     *
      * @member userOrientSelected
      * @type {number}
      */
@@ -40,7 +40,7 @@ const view =
 
     /**
      * Array used to store the hits in order to see if the ship is sunk
-     * 
+     *
      * @member sunkArr
      * @type {array}
      */
@@ -48,7 +48,7 @@ const view =
 
     /**
      * Count to keep track of how many hits are on a particular ship
-     * 
+     *
      * @member sunkCount
      * @type {number}
      */
@@ -56,23 +56,23 @@ const view =
 
     /**
      * tag to lable whose turn it is
-     * 
+     *
      * @member gamePhasePlayerTag
      */
     gamePhasePlayerTag: document.createElement("h5"),
 
     /**
      * Array to store the orientations
-     * 
+     *
      * @member orientArr
      * @type {array}
-     */ 
+     */
     orientArr: ['N', 'E', 'S', 'W'],
 
 
     /**
      * This function is used to start the renderBoard function.
-     * 
+     *
      * @function runGame
      * @pre None
      * @post renderBoard function is ran
@@ -86,7 +86,7 @@ const view =
 
     /**
      * This function is to display the Battleship game board
-     * 
+     *
      * @function renderBoard
      * @pre None
      * @post Board and number and letter on the board are displayed on the screen
@@ -136,7 +136,7 @@ const view =
 
     /**
      * When the box is clicked it will change into a boat picture or display a target
-     * 
+     *
      * @function boxClickEvent
      * @pre Box is clicked on the board
      * @post depending on what state the game is it will either display a boat picture or display a target
@@ -201,7 +201,7 @@ const view =
 
     /**
      * Used to clear the left board
-     * 
+     *
      * @function clearLeftBoard
      * @pre None
      * @post Clears the left board
@@ -213,11 +213,11 @@ const view =
         {
             temp[i].setAttribute('src','images/blank2.png')
         }
-    },   
+    },
 
     /**
      * Used to clear the right board
-     * 
+     *
      * @function clearRightBoard
      * @pre None
      * @post Clears the right board
@@ -233,7 +233,7 @@ const view =
 
     /**
      * Handles the orientation of the ship
-     * 
+     *
      * @function displayOrientation
      * @pre once a box get clicked the orientation will be displayed
      * @post Displays the orientation text and contains the click event for the orientation
@@ -241,16 +241,13 @@ const view =
     displayOrientation: function()
     {
         //If you are placing the 1 length ship it has a different prompt
-        if(model.placementCounter == 1) 
+        if(model.placementCounter == 1)
         {
             let temp = document.createElement("div")
             let temp2 = document.createElement("h2")
-            temp.innerText = "There is no specific orientation, please click this prompt and hit submit"
+            temp.innerText = "If you are satisfied with the location, click submit to continue."
             temp2.innerText = "ORIENTATION"
-            temp.addEventListener('click', ()=>
-            {
-                view.orientSelected = 1
-            })
+            view.orientSelected = 1
             document.querySelector(".orientContainer").appendChild(temp)
 
             //If it is player one then it will display the Orientation Title
@@ -273,10 +270,10 @@ const view =
             }
         }
     },
-    
+
     /**
      * This function is what stores the user's orientation choice
-     * 
+     *
      * @function userOrientation
      * @pre user clicks on the box for the orientation they want
      * @post Function that is used to store the orientation that the user selects
@@ -293,7 +290,7 @@ const view =
             view.userOrientSelected = 1
         }
         else if(this.getAttribute('data-orientation') == "2")
-        {   
+        {
             view.userOrientSelected = 2
         }
         else if(this.getAttribute('data-orientation') == "3")
@@ -304,10 +301,10 @@ const view =
 
     /**
      * This function is in charge of clearing the orientation display
-     * 
+     *
      * @function clearOrientation
      * @pre None
-     * @post clears the north, south, east, west, options 
+     * @post clears the north, south, east, west, options
      */
     clearOrientation: function()
     {
@@ -321,7 +318,7 @@ const view =
 
     /**
      * This function is used to display the setups
-     * 
+     *
      * @function setupPhaseText
      * @pre the user has clicked the start placing pieces button
      * @post Displays the orientation text and contains the click event for the orientation
@@ -343,7 +340,7 @@ const view =
         subButton.setAttribute('data-button', 2)
 
         //Event listener for hitting the submit button
-        subButton.addEventListener('click', () => 
+        subButton.addEventListener('click', () =>
         {
             console.log(model.placementCounter)
 
@@ -351,7 +348,7 @@ const view =
             if(model.boxClicked == -1)
             {
                 alert("Please select a box to place the ship")
-                view.orientSelected = 0         
+                view.orientSelected = 0
                 model.placementCounter -= 1
                 view.removeSetupPhaseText()
                 model.turnFunc()
@@ -412,7 +409,7 @@ const view =
                         view.clearOrientation()
                         model.boxClicked = -1
                         view.removeSetupPhaseText()
-                        model.gameState = 2 
+                        model.gameState = 2
                         model.gamePhase()
                     }
                     else
@@ -423,7 +420,7 @@ const view =
                         view.removeSetupPhaseText()
                         model.turnFunc()
                     }
-                }   
+                }
             }
             //For when the set up ends for a particular player
             else
@@ -433,7 +430,7 @@ const view =
                     model.placementCounter -= 1
                     view.removeSetupPhaseText()
                     model.turnFunc()
-                
+
             }
             //Deletes the submit button at the end of the setup
             view.body.querySelector(`[data-button = "${2}"]`).remove()
@@ -464,9 +461,9 @@ const view =
 
     /**
      * This function removes setup phase texts
-     * 
+     *
      * @function removeSetupPhaseText
-     * @pre setup is over 
+     * @pre setup is over
      * @post removes all the html elements that are used in the setup phase
      */
     removeSetupPhaseText: function()
@@ -478,7 +475,7 @@ const view =
 
     /**
      * This function displays the ships
-     * 
+     *
      * @function displayShips
      * @pre None
      * @post displays the ship based on what player it is
@@ -500,7 +497,7 @@ const view =
 
     /**
      * This function displays the game phase text
-     * 
+     *
      * @function gamePhaseText
      * @pre game phase started
      * @post the html elements for the game phase is created and displayed
@@ -519,7 +516,7 @@ const view =
         nxtButton.addEventListener('click', () =>
         {
             view.gamePhasePlayerTag.innerText = "Player " + (model.player+1) + "'s turn"
-            
+
             //displays your board and waits until the user clicks the target and hits the next button
             if(model.firstGamePhase == 0)
             {
@@ -589,7 +586,7 @@ const view =
 
     /**
      * This function is in charge of displaying the hits
-     * 
+     *
      * @function DisplayHits
      * @pre None
      * @post Displays the hits on the board based on the players turn and displays when a persons ship has been hit as well
@@ -603,7 +600,7 @@ const view =
                 let temp = model.playerShips[i].hits[j]
                 if(temp != null)
                 {
-                    view.boards[1].querySelector(`[data-id = "${temp}"]`).setAttribute('src', 'images/hit.png')  
+                    view.boards[1].querySelector(`[data-id = "${temp}"]`).setAttribute('src', 'images/hit.png')
                 }
             }
         }
@@ -615,7 +612,7 @@ const view =
                 let temp = model.playerShips[i].hits[j]
                 if(temp != null)
                 {
-                    view.boards[0].querySelector(`[data-id = "${temp-100}"]`).setAttribute('src', 'images/hit.png')  
+                    view.boards[0].querySelector(`[data-id = "${temp-100}"]`).setAttribute('src', 'images/hit.png')
                 }
             }
         }
@@ -624,7 +621,7 @@ const view =
 
     /**
      * This function is in charge of displaying the sunked ships
-     * 
+     *
      * @function displaySunk
      * @pre None
      * @post Displays which boats at sunk for both the boats that you are shooting and your boats
@@ -644,9 +641,9 @@ const view =
                     {
                         for(let k = 0; k < view.sunkCount; k++)
                         {
-                            view.boards[1].querySelector(`[data-id = "${view.sunkArr[k]}"]`).setAttribute('src', 'images/sunk.png')  
-                        }   
-                    }  
+                            view.boards[1].querySelector(`[data-id = "${view.sunkArr[k]}"]`).setAttribute('src', 'images/sunk.png')
+                        }
+                    }
                 }
             }
             view.sunkCount = 0
@@ -666,9 +663,9 @@ const view =
                     {
                         for(let k = 0; k < view.sunkCount; k++)
                         {
-                            view.boards[0].querySelector(`[data-id = "${view.sunkArr[k]-100}"]`).setAttribute('src', 'images/sunk.png')  
-                        }   
-                    }  
+                            view.boards[0].querySelector(`[data-id = "${view.sunkArr[k]-100}"]`).setAttribute('src', 'images/sunk.png')
+                        }
+                    }
                 }
             }
             view.sunkCount = 0
@@ -679,7 +676,7 @@ const view =
 
     /**
      * This function displays the missed hits
-     * 
+     *
      * @function displayMisses
      * @pre None
      * @post Displays the misses of the player whose turn it is
@@ -692,9 +689,9 @@ const view =
         }
     },
 
-     /** 
+     /**
       * This function removes the GamePhase Text
-      * 
+      *
       * @function removeGamePhaseText
       * @pre game phase ends
       * @post removes the html elements for the game phase text
@@ -709,8 +706,8 @@ const view =
     },
 
     /**
-     * This function displays the 
-     * 
+     * This function displays the
+     *
      * @function displayWinner
      * @pre once a winner is decided
      * @post displays the winner and asks the user if they want to restart the game
@@ -718,7 +715,7 @@ const view =
     displayWinner: function ()
     {
         let title = document.createElement("h1")
-        title.innerText = "The Winner is Player " + (model.winner+1) 
+        title.innerText = "The Winner is Player " + (model.winner+1)
 
         let instruct = document.createElement("h4")
         instruct.innerText = "If you want to restart the game please click on the button below"
@@ -738,7 +735,7 @@ const view =
 
     /**
      * This function displays the game phase
-     * 
+     *
      * @function displayGamePhase
      * @pre set up phase ends
      * @post Displays the html elements for the game phase
@@ -756,6 +753,6 @@ const view =
         })
         view.body.querySelector("h2").remove()
         view.body.appendChild(gameButton)
-    
+
     },
 }
