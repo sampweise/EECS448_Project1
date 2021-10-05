@@ -133,6 +133,8 @@ const model =
      */
     winner: 0,
 
+
+
     /**
      * This function is a function in charge of setup
      *
@@ -148,6 +150,7 @@ const model =
         button.addEventListener('click', () =>
         {
             //runs the prompt
+            model.modelchoose()
             model.runPrompt()
             if(model.player == 0)
             {
@@ -557,6 +560,55 @@ const model =
         }
         model.winnerCount = 0
         return false
-    }
+    },
+
+
+
+    ///////////////////////////new///////////////////////////////////////
+
+    /**
+     * variable used to determine  model
+     * @member modelprompt
+     * @type {number}
+     */
+    modelprompt: 0,
+
+     /**
+      * variable used to determine the AI difficulity
+      * @member aidifficulity
+      * @type {number}
+      */
+     aidifficulity: 0,
+ 
+     /**
+      * This function runs the prompt to choose the part of AI
+      *
+      * @function modelPrompt
+      * @pre the setup phase starts
+      * @post prompts the user to chose a number between 1 and 2 for model and 1-3 for AI difficulity
+      */
+     
+     modelchoose: function()
+      {
+          let correct = 0
+          do
+          {
+              model.modelprompt = prompt("which model do you want to play with! \n(player2: 1,  ai opponent: 2)")
+              if(model.modelprompt >= 1 && model.modelprompt <= 2)
+              {
+                 if (model.modelprompt == 2 )
+                 {
+                     do
+                     {
+                         this.aidifficulity = prompt("which difficulitiy of AI opponent do you want to choose? \n(1.easy 2.medium 3.hard)")
+                     }while (this.aidifficulity != 1 && this.aidifficulity != 2 && this.aidifficulity != 3);
+                     
+                 }
+                  correct = 1
+              }
+          } while(correct == 0)
+     },
 
 }
+
+
